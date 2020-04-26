@@ -1,7 +1,11 @@
 POST http://localhost:8000/steno/console
 Content-Type: application/json
 
-{"name":"insert","group":"test","sql":"INSERT INTO steno.test_table (\ntest_name,\ntest_version,\ntest_create_dt\n)\nVALUES\n(\n:test_name,\n:test_version,\n:test_create_dt\n) ;"}
+{
+    "name":"insert",
+    "group":"test",
+    "sql":"INSERT INTO steno.test_table (\ntest_name,\ntest_version,\ntest_create_dt\n)\nVALUES\n(\n:test_name,\n:test_version,\n:test_create_dt\n) ;"
+}
 
 ###
 
