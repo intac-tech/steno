@@ -1,0 +1,112 @@
+POST http://localhost:8000/steno/console
+Content-Type: application/json
+
+{"name":"insert","group":"test","sql":"INSERT INTO steno.test_table (\ntest_name,\ntest_version,\ntest_create_dt\n)\nVALUES\n(\n:test_name,\n:test_version,\n:test_create_dt\n) ;"}
+
+###
+
+POST http://localhost:8000/steno/console
+Content-Type: application/json
+
+{
+    "name": "select",
+    "group": "test",
+    "sql": "SELECT * FROM steno.test_table WHERE test_name = :test_name"
+}
+
+###
+
+POST http://localhost:8000/steno/console/test
+Content-Type: application/json
+
+{
+    "mutation": {
+        "test:insert": {
+            "params": {
+                "test_name": "${name}",
+                "test_version": "${version}",
+                "test_create_dt": "${createDate}"
+            }
+        }
+    },
+    "query": {
+        "select@test:select": {
+            "params": {
+                "test_name": "${name}"
+            }
+        }
+    }
+}
+
+###
+POST http://localhost:8000/steno/api/test
+Content-Type: application/json
+
+{
+    "name": "test1",
+    "version": 1,
+    "createDate": "2020-01-01 01:01:01"
+}
+
+###
+
+POST http://localhost:8000/steno/api
+Content-Type: application/json
+
+{
+    "mutation": {
+        "test:insert": {
+            "params": {
+                "test_name": "testd ss",
+                "test_version": "2",
+                "test_create_dt": "2012-01-01 01:01:01"
+            }
+        }
+    },
+    "query": {
+        "select@test:select": {
+            "paginated": true,
+            "page": 2,
+            "size": 1,
+            "params": {
+                "test_name": "${name}"
+            }
+        },
+        "select1@test:select": {
+            "singleResult": true,
+            "params": {
+                "test_name": "${name}"
+            }
+        }
+    },
+    "variables": {
+        "name": "test ss"
+    }
+}
+
+###
+
+POST http://localhost:8000/steno/api
+Content-Type: application/json
+
+{
+    "query": {
+        "select@test:select": {
+            "paginated": true,
+            "page": 2,
+            "size": 1,
+            "params": {
+                "test_name": "${name}"
+            }
+        },
+        "select1@test:select": {
+            "singleResult": true,
+            "params": {
+                "test_name": "${name}"
+            }
+        }
+    },
+    "variables": {
+        "name": "test ss"
+    }
+}
