@@ -7,31 +7,23 @@ import { StenoTemplateService } from "./steno.template";
 export class StenoTemplateProvider {
     constructor(private connection: Connection) {}
 
+    private async processOnTemplate(handler: (sql: StenoTemplateService) => Promise<any>) {
+        return await this.connection.transaction(async (conn) => await handler(new StenoTemplateService(conn)));
+    }
+
     async getSqlTemplates(names: string[]) {
-        return await this.connection.transaction(async (conn) => {
-            const sql = new StenoTemplateService(conn);
-            return await sql.getSqlTemplates(names);
-        });
+        return await this.processOnTemplate(async (sql) => await sql.getSqlTemplates(names));
     }
 
     async getStenoTemplates(names: string[]) {
-        return await this.connection.transaction(async (conn) => {
-            const sql = new StenoTemplateService(conn);
-            return await sql.getStenoTemplates(names);
-        });
+        return await this.processOnTemplate(async (sql) => await sql.getStenoTemplates(names));
     }
 
     async saveTemplate(template: SqlTemplate) {
-        return await this.connection.transaction(async (conn) => {
-            const sql = new StenoTemplateService(conn);
-            return await sql.saveSqlTemplate(template)
-        });
+        return await this.processOnTemplate(async (sql) => await sql.saveSqlTemplate(template));
     }
 
     async saveStenoTemplate(template: StenoTemplate) {
-        return await this.connection.transaction(async (conn) => {
-            const sql = new StenoTemplateService(conn);
-            return await sql.saveStenoTemplate(template);
-        });
+        return await this.processOnTemplate(async (sql) => await sql.saveStenoTemplate(template));
     }
 }
