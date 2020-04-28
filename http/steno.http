@@ -114,3 +114,45 @@ Content-Type: application/json
         "name": "test ss"
     }
 }
+
+###
+
+POST http://localhost:8000/steno/api
+Content-Type: application/json
+
+{
+    "mutation": {
+        "insert@test:insert": {
+            "params": "${testArray}"
+        }
+    },
+    "variables": {
+        "testArray": [
+            {
+                "test_name": "testd ss",
+                "test_version": "2",
+                "test_create_dt": "2012-01-01 01:01:01"
+            },
+            {
+                "test_name": "testd ss",
+                "test_version": "2",
+                "test_create_dt": "2012-01-01 01:01:01"
+            },
+            {
+                "test_name": "testd ss",
+                "test_version": "2",
+                "test_create_dt": "2012-01-01 01:01:01"
+            },
+            {
+                "test_name": "testd ss",
+                "test_version": "2",
+                "test_create_dt": "2012-01-01 01:01:01"
+            },
+            {
+                "test_name": "testd ss",
+                "test_version": "2",
+                "test_create_dt": "2012-01-01 01:01:01"
+            }
+        ]
+    }
+}

@@ -2,6 +2,7 @@ import { StenoRequest } from "./model";
 import { StenoTemplateService } from "./steno.template";
 import { interpolate } from "src/common/util";
 import { mysql } from "yesql";
+import { type } from "os";
 
 export class StenoService {
     constructor(public templateSvc: StenoTemplateService) {}
@@ -62,24 +63,38 @@ export class StenoService {
     }
 
     private async executeSqlTemplate(sqlTemplate, request, variables = {}, mutation = false) {
-        const params = request.params;
-        const paramKeys = Object.keys(params);
-        paramKeys.forEach(k => {
-            const val = params[k];
-            const typeK = typeof(val);
-            const isString = typeK === 'string';
-            if(isString) {
-                const str = interpolate(val, variables);
-                params[k] = JSON.parse(str);
-            }
-        });
+        let params = request.params;
+        if(typeof(params) === 'string') {
+            params = JSON.parse(interpolate(params, variables));
+        }
+        
+        if (!Array.isArray(params)) {
+            const paramKeys = Object.keys(params);
+            paramKeys.forEach(k => {
+                const val = params[k];
+                const typeK = typeof(val);
+                const isString = typeK === 'string';
+                if(isString) {
+                    const str = interpolate(val, variables);
+                    params[k] = JSON.parse(str);
+                }
+            });
+        }
 
         const conn = this.templateSvc.connection;
         const sql = sqlTemplate.sql;
-
         if (mutation) {
-            const [result] = await conn.execute(mysql(sql)(params));
-            return { result };
+            if (Array.isArray(params)) {
+                const result = [];
+                for (const p of params) {
+                    const [res] = await conn.execute(mysql(sql)(p));
+                    result.push(res);
+                }
+                return { result };
+            } else {
+                const [result] = await conn.execute(mysql(sql)(params));
+                return { result };
+            }
         } else {
             const queryCount = `SELECT COUNT(1) as total FROM ( ${sql} ) o`;
             const query = ['SELECT o.* FROM ( ', sql, ' ) o'];

@@ -13,7 +13,6 @@ const pool = createPool(config);
 
 @Injectable()
 export class Connection {
-    private readonly pool: Pool;
     constructor() {}
 
     async connection() {

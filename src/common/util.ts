@@ -1,9 +1,6 @@
 function jsonToString(val) {
-    if(typeof(val) === 'object') {
-        Object.values(val)
-            .map(o => jsonToString(o) );
-        return val;
-    } else {
+
+    const toJsonString = () => {
         const toObj = {
             val,
             toString: function() {
@@ -11,7 +8,19 @@ function jsonToString(val) {
             }
         }
         return toObj;
+    };
+
+    if(Array.isArray(val)) {
+        return toJsonString();
     }
+
+    if(typeof(val) === 'object') {
+        Object.values(val)
+            .map(o => jsonToString(o) );
+        return val;
+    } 
+        
+    return toJsonString();
 }
 
 export function interpolate(str: string, params: any) {
