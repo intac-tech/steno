@@ -1,8 +1,30 @@
 import { StenoRequest } from "./model";
 import { StenoTemplateService } from "./steno.template";
-import { interpolate } from "src/common/util";
+import { resolveProperty, VARIABLE_PATTERN } from "src/common/util";
 import { mysql } from "yesql";
-import { type } from "os";
+
+class VariableHolder {
+    private evaluatedVariables = {};
+    constructor(public variables: any) {}
+
+    evaluate(prop: string) {
+        if(VARIABLE_PATTERN.test(prop)) {
+            let value = this.evaluatedVariables[prop];
+            if(!value) {
+                value = resolveProperty(prop, this.variables);
+                if(value !== prop) {
+                    this.evaluatedVariables[prop] = value;
+                }
+            }
+            return value;
+        }
+        return prop;
+    }
+
+    set(name, value: any) {
+        this.variables[name] = value;
+    }
+}
 
 export class StenoService {
     constructor(public templateSvc: StenoTemplateService) {}
@@ -16,14 +38,22 @@ export class StenoService {
                                                     name: name || alias,
                                                     request: obj[key] 
                                                 };
+                                            })
+                                            .sort((a, b) => {
+                                                const priorityA = a.request.priority || 0;
+                                                const priorityB = a.request.priority || 0;
+
+                                                return (priorityA - priorityB) * -1;
                                             });
+
+        const variables = new VariableHolder(request.variables || {});
         const mutationsKeys = templateKeys(request.mutation || {});
         const queryKeys = templateKeys(request.query || {});
         const names = mutationsKeys.map(o => o.name).concat(queryKeys.map(o => o.name));
         const templates = await this.templateSvc.getSqlTemplates(names);
         
-        const mutationResponse  = await this.executeSql(mutationsKeys, templates, request.variables, true);
-        const queryResponse = await this.executeSql(queryKeys, templates, request.variables);
+        const mutationResponse  = await this.executeSql(mutationsKeys, templates, variables, true);
+        const queryResponse = await this.executeSql(queryKeys, templates, variables);
         const response = {};
         
         Object.keys(mutationResponse.response)
@@ -35,7 +65,7 @@ export class StenoService {
         return { response, hasError: mutationResponse.hasError || queryResponse.hasError };
     }
 
-    private async executeSql(keys: any[], templates: any[], variables: any = {},  mutation?: boolean) {
+    private async executeSql(keys: any[], templates: any[], variables: VariableHolder,  mutation?: boolean) {
         const response = {};
         let hasError = false;
         for await (const name of keys) {
@@ -43,7 +73,7 @@ export class StenoService {
             if (!sqlTemplate) {
                 response[name.alias] = { error: { code: 100, message: `Template not found ${name}` } };
             } else {
-                response[name.alias] = await this.executeSqlTemplate(sqlTemplate, name.request, variables, mutation)
+                response[name.alias] = await this.executeSqlTemplate(sqlTemplate, name, variables, mutation)
                                                  .catch((e) => ({ error: { code: 101, message: JSON.stringify(e) } }));
                 if(!!response[name.alias].error) {
                     hasError = true;
@@ -62,25 +92,35 @@ export class StenoService {
         return { response, hasError };
     }
 
-    private async executeSqlTemplate(sqlTemplate, request, variables = {}, mutation = false) {
-        let params = request.params;
-        if(typeof(params) === 'string') {
-            params = JSON.parse(interpolate(params, variables));
-        }
-        
-        if (!Array.isArray(params)) {
-            const paramKeys = Object.keys(params);
+    private evaluate(obj: any, variables: VariableHolder) {
+        if(typeof(obj) === 'string') {
+            obj = variables.evaluate(obj);
+            if(typeof(obj) === 'object') {
+                obj = this.evaluate(obj, variables);
+            }
+
+        } else if(Array.isArray(obj)) {
+            obj.forEach((o, i) => {
+                obj[i] = this.evaluate(o, variables);
+            });
+        } else if (typeof(obj) === 'object') {
+            const paramKeys = Object.keys(obj);
             paramKeys.forEach(k => {
-                const val = params[k];
+                const val = obj[k];
                 const typeK = typeof(val);
                 const isString = typeK === 'string';
-                if(isString) {
-                    const str = interpolate(val, variables);
-                    params[k] = JSON.parse(str);
+                if(isString && VARIABLE_PATTERN.test(val)) {
+                    console.log('eval: ', val);
+                    obj[k] = variables.evaluate(val);
                 }
             });
         }
+        return obj;
+    }
 
+    private async executeSqlTemplate(sqlTemplate, name, variables: VariableHolder, mutation = false) {
+        const request = name.request;
+        let params = this.evaluate(request.params || {}, variables);
         const conn = this.templateSvc.connection;
         const sql = sqlTemplate.sql;
         if (mutation) {
@@ -90,9 +130,12 @@ export class StenoService {
                     const [res] = await conn.execute(mysql(sql)(p));
                     result.push(res);
                 }
+
+                variables.set(name.alias, result);
                 return { result };
             } else {
                 const [result] = await conn.execute(mysql(sql)(params));
+                variables.set(name.alias, result);
                 return { result };
             }
         } else {

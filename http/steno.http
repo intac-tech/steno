@@ -156,3 +156,44 @@ Content-Type: application/json
         ]
     }
 }
+
+
+###
+
+POST http://localhost:8000/steno/api
+Content-Type: application/json
+
+{
+    "mutation": {
+        "insert1@test:insert": {
+            "priority": 999,
+            "params": "${testOn3}"
+        },
+        "insert2@test:insert": {
+            "priority": 1,
+            "params": "${testArray}"
+        }
+    },
+    "variables": {
+        "version": {
+            "value": 1
+        },
+        "testOn3": {
+            "test_name": "testd 11",
+            "test_version": "${version.value}",
+            "test_create_dt": "2012-01-01 01:01:01"
+        },
+        "testArray": [
+            {
+                "test_name": "testd 21",
+                "test_version": "${insert1.insertId}",
+                "test_create_dt": "2012-01-01 01:01:01"
+            },
+            {
+                "test_name": "testd 21",
+                "test_version": "${insert1.insertId}",
+                "test_create_dt": "2012-01-01 01:01:01"
+            }
+        ]
+    }
+}

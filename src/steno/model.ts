@@ -21,6 +21,7 @@ export interface OrderBy {
 }
 
 export interface Mutation {
+    priority?: number;
     params?: any;
 }
 
