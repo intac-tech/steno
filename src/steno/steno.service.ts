@@ -110,7 +110,6 @@ export class StenoService {
                 const typeK = typeof(val);
                 const isString = typeK === 'string';
                 if(isString && VARIABLE_PATTERN.test(val)) {
-                    console.log('eval: ', val);
                     obj[k] = variables.evaluate(val);
                 }
             });
@@ -147,11 +146,11 @@ export class StenoService {
             const paginated = !!request.paginated;
             const singleResult = request.singleResult;
             const orderColumns = orderBy.columns.split(',')
-                                        .map(o => o.trim())
-                                        .filter( o => !!o)
-                                        .map(col => ' o.`'+ col +'` ')
-                                        .join(',');
-
+                                        .map( o => (o || '').trim())
+                                        .map( str => str.replace(new RegExp('\r?\n','g'), '') )
+                                        .filter(o => !!o)
+                                        .map((col) => '`' + col + '`')
+                                        .join(', ');
             if(!!orderColumns) {
                 query.push(' ORDER BY ');
                 query.push(orderColumns);
@@ -169,7 +168,11 @@ export class StenoService {
             }
 
             const rawSql = query.join('');
-            const [result, schema] = await conn.query(mysql(rawSql)(params));
+            const psSql = mysql(rawSql)(params);
+            console.log(`===================== ${name.name} =========================`);
+            console.log(name.name, ' => ', psSql);
+            console.log('======================== END ==============================');
+            const [result, schema] = await conn.query(psSql);
             const response = { count: undefined, result, size: (result as any).length};
 
             if (paginated) {

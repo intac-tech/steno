@@ -97,16 +97,14 @@ Content-Type: application/json
     "query": {
         "select@test:select": {
             "paginated": true,
-            "page": 2,
-            "size": 1,
+            "page": 1,
+            "size": 3,
             "params": {
                 "test_name": "${name}"
-            }
-        },
-        "select1@test:select": {
-            "singleResult": true,
-            "params": {
-                "test_name": "${name}"
+            },
+            "orderBy": {
+                "columns": "test_id, test_name",
+                "asc": true
             }
         }
     },
