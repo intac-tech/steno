@@ -2,6 +2,9 @@
 
 [Steno](https://intac.tech).
 
+## Docker
+docker-compose up
+
 ## Installation
 
 ```bash
