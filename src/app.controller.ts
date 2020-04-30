@@ -10,6 +10,11 @@ export class AppController {
               private readonly stenoSvc: StenoProvider,
               private readonly stenoTemplateService: StenoTemplateProvider) {}
 
+  @Get('tables')
+  async getTables() {
+    return await this.stenoTemplateService.getTables();
+  }
+
   @Post('console')
   async saveTemplate(@Body() request: SqlTemplate) {
     return await this.stenoTemplateService.saveTemplate(request);
@@ -34,4 +39,5 @@ export class AppController {
   async executePs(@Body() variables: any, @Param('name') name) {
     return await this.stenoSvc.executePs(name, variables);
   }
+
 }
