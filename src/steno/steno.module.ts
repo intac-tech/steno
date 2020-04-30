@@ -18,7 +18,7 @@ export class StenoModule {
         console.log('initialize steno db');
         await this.connection.transaction(async (conn) => {
             await conn.query(`
-            CREATE TABLE IF NOT EXISTS sql_template (
+            CREATE TABLE IF NOT EXISTS steno_template (
                 st_group varchar(500) NOT NULL,
                 st_name varchar(500) NOT NULL,
                 st_sql blob,
@@ -29,7 +29,7 @@ export class StenoModule {
             );`);
 
             await conn.query(`
-            CREATE TABLE IF NOT EXISTS sql_template_log (
+            CREATE TABLE IF NOT EXISTS steno_template_log (
                 st_id BIGINT(20) NOT NULL AUTO_INCREMENT,
                 st_group VARCHAR(500) NOT NULL,
                 st_name VARCHAR(500) NOT NULL,
@@ -42,7 +42,7 @@ export class StenoModule {
             );`);
 
             await conn.query(`
-            CREATE TABLE IF NOT EXISTS sql_prepared_template (
+            CREATE TABLE IF NOT EXISTS steno_prepared_template (
                 spt_name varchar(500) NOT NULL,
                 spt_template blob,
                 spt_version bigint(20) DEFAULT 1,
@@ -52,7 +52,7 @@ export class StenoModule {
             );`);
 
             await conn.query(
-            `CREATE TABLE IF NOT EXISTS sql_prepared_template_log (
+            `CREATE TABLE IF NOT EXISTS steno_prepared_template_log (
                 spt_id BIGINT(20) NOT NULL AUTO_INCREMENT,
                 spt_name VARCHAR(500) NOT NULL,
                 spt_template BLOB,
@@ -64,7 +64,7 @@ export class StenoModule {
             );`);
 
             await conn.query(
-            `CREATE TABLE IF NOT EXISTS test_table (
+            `CREATE TABLE IF NOT EXISTS steno_test_table (
                 test_id BIGINT(20) NOT NULL AUTO_INCREMENT,
                 test_name VARCHAR(500) NOT NULL,
                 test_version BIGINT(20) NOT NULL,

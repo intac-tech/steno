@@ -4,7 +4,7 @@ Content-Type: application/json
 {
     "name":"insert",
     "group":"test",
-    "sql":"INSERT INTO steno.test_table (\ntest_name,\ntest_version,\ntest_create_dt\n)\nVALUES\n(\n:test_name,\n:test_version,\n:test_create_dt\n) ;"
+    "sql":"INSERT INTO steno.steno_test_table (\ntest_name,\ntest_version,\ntest_create_dt\n)\nVALUES\n(\n:test_name,\n:test_version,\n:test_create_dt\n) ;"
 }
 
 ###
@@ -15,7 +15,7 @@ Content-Type: application/json
 {
     "name": "select",
     "group": "test",
-    "sql": "SELECT * FROM steno.test_table WHERE test_name = :test_name"
+    "sql": "SELECT * FROM steno.steno_test_table WHERE test_name = :test_name"
 }
 
 ###
