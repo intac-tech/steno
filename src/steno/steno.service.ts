@@ -51,6 +51,8 @@ export class StenoService {
         const queryKeys = templateKeys(request.query || {});
         const names = mutationsKeys.map(o => o.name).concat(queryKeys.map(o => o.name));
         const templates = await this.templateSvc.getSqlTemplates(names);
+
+        // TODO: check template permissions
         
         const mutationResponse  = await this.executeSql(mutationsKeys, templates, variables, true);
         const queryResponse = await this.executeSql(queryKeys, templates, variables);
