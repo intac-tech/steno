@@ -161,7 +161,6 @@ export class StenoService {
                                         .map( o => (o || '').trim())
                                         .map( str => str.replace(new RegExp('\r?\n','g'), '') )
                                         .filter(o => !!o)
-                                        .map((col) => '`' + col + '`')
                                         .join(', ');
             if(!!orderColumns) {
                 query.push(' ORDER BY ');
@@ -185,11 +184,12 @@ export class StenoService {
             console.log(name.name, ' => ', psSql);
             console.log('======================== END ==============================');
             const results = await conn.query(psSql);
-            const response = { count: undefined, result: results.rows, size: results.rowCount};
+            const response = { count: undefined, result: results.rows, size: results.rowCount, page: undefined};
 
             if (paginated) {
                 const results = await conn.query(pg(queryCount)(params));
                 response.count = results.rows[0].total;
+                response.page = page;
             }
 
             if (singleResult) {
