@@ -12,7 +12,7 @@ export class StenoProvider {
         const sqlProvider = new StenoService(templateSvc);
         const result = await sqlProvider.execute(request);
         if(result.hasError) {
-            await templateSvc.connection.rollback().catch(console.error);
+            await templateSvc.rollback();
         }
         return result.response;
     }
