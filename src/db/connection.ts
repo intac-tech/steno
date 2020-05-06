@@ -1,36 +1,35 @@
 import { Injectable } from "@nestjs/common";
-import { createPool, Pool } from "mysql2/promise";
+import { Pool } from "pg";
 
-const config = {
-    host     : process.env.DB_HOST,
-    port     : parseInt(process.env.DB_PORT),
-    user     : process.env.DB_USER,
-    password : process.env.DB_PASSWORD,
-    database : process.env.DB_DATABASE
-};
-
-const pool = createPool(config);
+const pool = new Pool({
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT),
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
+  })
 
 @Injectable()
 export class Connection {
-    constructor() {}
 
     async connection() {
-        return await pool.getConnection();
+        return await pool.connect();
     }
 
     async transaction<T>(handler: (connection) => Promise<T>) {
-        const conn = await this.connection();
+        const client = await this.connection();
         try {
-            await conn.beginTransaction();
-            const resp = await handler(conn);
-            await conn.commit();
+            await client.query('BEGIN');
+            const resp = await handler(client);
+            await client.query('COMMIT');
             return resp;
         } catch (e) {
-            conn.rollback().catch(console.error);
-            throw e;
+            console.error(e);
+            await client.query('ROLLBACK').catch((err) => console.error(err));
         } finally {
-            conn.release();
+            client.release();
         }
     }
 }

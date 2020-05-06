@@ -1,7 +1,7 @@
 import { StenoRequest } from "./model";
 import { StenoTemplateService } from "./steno.template";
 import { resolveProperty, VARIABLE_PATTERN } from "src/common/util";
-import { mysql } from "yesql";
+import { pg } from "yesql";
 
 class VariableHolder {
     private evaluatedVariables = {};
@@ -126,16 +126,26 @@ export class StenoService {
         const sql = sqlTemplate.sql;
         if (mutation) {
             if (Array.isArray(params)) {
-                const result = [];
+                let results = [];
                 for (const p of params) {
-                    const [res] = await conn.execute(mysql(sql)(p));
-                    result.push(res);
+                    const res = await conn.query(pg(sql)(p));
+                    results = results.concat(res.rows.map(o => o));
                 }
+
+                const result = {
+                    count: results.length,
+                    rows: results
+                };
 
                 variables.set(name.alias, result);
                 return { result };
             } else {
-                const [result] = await conn.execute(mysql(sql)(params));
+                const response = await conn.query(pg(sql)(params));
+                const result = {
+                    count: response.rowCount,
+                    rows: response.rows.map(o => o),
+                    returned: response.rows.map(o => o).find(o => !!o)
+                };
                 variables.set(name.alias, result);
                 return { result };
             }
@@ -170,16 +180,16 @@ export class StenoService {
             }
 
             const rawSql = query.join('');
-            const psSql = mysql(rawSql)(params);
+            const psSql = pg(rawSql)(params);
             console.log(`===================== ${name.name} =========================`);
             console.log(name.name, ' => ', psSql);
             console.log('======================== END ==============================');
-            const [result, schema] = await conn.query(psSql);
-            const response = { count: undefined, result, size: (result as any).length};
+            const results = await conn.query(psSql);
+            const response = { count: undefined, result: results.rows, size: results.rowCount};
 
             if (paginated) {
-                const [countResult] = await conn.query(mysql(queryCount)(params));
-                response.count = countResult[0].total;
+                const results = await conn.query(pg(queryCount)(params));
+                response.count = results.rows[0].total;
             }
 
             if (singleResult) {

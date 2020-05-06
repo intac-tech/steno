@@ -17,62 +17,59 @@ export class StenoModule {
     async init() {
         console.log('initialize steno db');
         await this.connection.transaction(async (conn) => {
+            await conn.query(`CREATE SCHEMA IF NOT EXISTS config;`);
             await conn.query(`
-            CREATE TABLE IF NOT EXISTS steno_template (
+            CREATE TABLE IF NOT EXISTS config.steno_template (
                 st_group varchar(500) NOT NULL,
                 st_name varchar(500) NOT NULL,
-                st_sql blob,
-                st_version bigint(20) DEFAULT 1,
-                st_create_dt datetime DEFAULT NOW(),
-                st_update_dt datetime DEFAULT NOW(),
+                st_sql text,
+                st_version bigint DEFAULT 1,
+                st_create_dt TIMESTAMP DEFAULT NOW(),
+                st_update_dt TIMESTAMP DEFAULT NOW(),
                 PRIMARY KEY (st_group, st_name)
             );`);
 
             await conn.query(`
-            CREATE TABLE IF NOT EXISTS steno_template_log (
-                st_id BIGINT(20) NOT NULL AUTO_INCREMENT,
+            CREATE TABLE IF NOT EXISTS config.steno_template_log (
+                st_id serial NOT NULL PRIMARY KEY,
                 st_group VARCHAR(500) NOT NULL,
                 st_name VARCHAR(500) NOT NULL,
-                st_sql BLOB,
-                st_version BIGINT(20) DEFAULT 1,
-                st_create_dt DATETIME NOT NULL,
-                st_update_dt DATETIME NOT NULL,
-                PRIMARY KEY (st_id),
-                UNIQUE KEY UNIQUE_IDX (st_group,st_name,st_version)
+                st_sql text,
+                st_version BIGINT DEFAULT 1,
+                st_create_dt TIMESTAMP NOT NULL,
+                st_update_dt TIMESTAMP NOT NULL
             );`);
 
             await conn.query(`
-            CREATE TABLE IF NOT EXISTS steno_prepared_template (
+            CREATE TABLE IF NOT EXISTS config.steno_prepared_template (
                 spt_name varchar(500) NOT NULL,
-                spt_template blob,
-                spt_version bigint(20) DEFAULT 1,
-                spt_create_dt datetime DEFAULT NOW(),
-                spt_update_dt datetime DEFAULT NOW(),
+                spt_template text,
+                spt_version bigint DEFAULT 1,
+                spt_create_dt TIMESTAMP DEFAULT NOW(),
+                spt_update_dt TIMESTAMP DEFAULT NOW(),
                 PRIMARY KEY (spt_name)
             );`);
 
             await conn.query(
-            `CREATE TABLE IF NOT EXISTS steno_prepared_template_log (
-                spt_id BIGINT(20) NOT NULL AUTO_INCREMENT,
+            `CREATE TABLE IF NOT EXISTS config.steno_prepared_template_log (
+                spt_id serial NOT NULL PRIMARY KEY,
                 spt_name VARCHAR(500) NOT NULL,
-                spt_template BLOB,
-                spt_version BIGINT(20) NOT NULL,
-                spt_create_dt DATETIME NOT NULL,
-                spt_update_dt DATETIME NOT NULL,
-                PRIMARY KEY (spt_id),
-                UNIQUE KEY UNIQUE_IDX (spt_name,spt_version)
+                spt_template text,
+                spt_version BIGINT NOT NULL,
+                spt_create_dt TIMESTAMP NOT NULL,
+                spt_update_dt TIMESTAMP NOT NULL
             );`);
 
             await conn.query(
-            `CREATE TABLE IF NOT EXISTS steno_test_table (
-                test_id BIGINT(20) NOT NULL AUTO_INCREMENT,
-                test_name VARCHAR(500) NOT NULL,
-                test_version BIGINT(20) NOT NULL,
-                test_create_dt DATETIME NOT NULL,
-                PRIMARY KEY (test_id)
-            );`)
-        });
-        console.log('done initialize steno db');
+            `CREATE TABLE IF NOT EXISTS config.steno_test_table (
+                test_id serial NOT NULL PRIMARY KEY,
+                test_name VARCHAR NOT NULL,
+                test_version BIGINT NOT NULL,
+                test_create_dt TIMESTAMP NOT NULL
+            );`);
+        })
+        .then(() => console.log('done initialize steno db'))
+        .catch((err) => console.error('error initializing db', err));
     }
 
 }
