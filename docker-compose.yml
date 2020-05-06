@@ -1,0 +1,39 @@
+version: "3"
+services:
+  steno_ts_db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+    ports:
+      # <Port exposed> : < MySQL Port running inside container>
+      - '${DB_PORT}:${DB_PORT}'
+    expose:
+      # Opens port 3306 on the container
+      - '${DB_PORT}'
+      # Where our data will be persisted
+    volumes:
+      - steno_ts_db:/var/lib/postgresql/data/
+  steno_ts_api:
+    container_name: steno_ts_api
+    image: node:12.16.0
+    volumes: 
+      - ./:/app
+    working_dir: /app
+    command: npm run start:dev
+    environment: 
+        PORT: ${PORT}
+        HOST: ${HOST}
+        DB_HOST: ${DB_HOST}
+        DB_USER: ${DB_USER}
+        DB_PASSWORD: ${DB_PASSWORD}
+        DB_DATABASE: ${DB_DATABASE}
+        DB_PORT: ${DB_PORT}
+    ports: 
+        - '${PORT}:${PORT}'
+    depends_on: 
+        - steno_ts_db
+# Names our volume
+volumes:
+    steno_ts_db:
