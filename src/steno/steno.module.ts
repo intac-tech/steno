@@ -59,14 +59,6 @@ export class StenoModule {
                 spt_create_dt TIMESTAMP NOT NULL,
                 spt_update_dt TIMESTAMP NOT NULL
             );`);
-
-            await conn.query(
-            `CREATE TABLE IF NOT EXISTS config.steno_test_table (
-                test_id serial NOT NULL PRIMARY KEY,
-                test_name VARCHAR NOT NULL,
-                test_version BIGINT NOT NULL,
-                test_create_dt TIMESTAMP NOT NULL
-            );`);
         })
         .then(() => console.log('done initialize steno db'))
         .catch((err) => console.error('error initializing db', err));

@@ -1,10 +1,16 @@
+POST http://localhost:8000/steno/executeSql
+Content-Type: text/plain
+
+< ./test.sql
+###
+
 POST http://localhost:8000/steno/console
 Content-Type: application/json
 
 {
     "name":"insert",
     "group":"test",
-    "sql":"INSERT INTO config.steno_test_table (\ntest_name,\ntest_version,\ntest_create_dt\n)\nVALUES\n(\n:test_name,\n:test_version,\n:test_create_dt\n) RETURNING test_id;"
+    "sql":"INSERT INTO steno_test_table (\ntest_name,\ntest_version,\ntest_create_dt\n)\nVALUES\n(\n:test_name,\n:test_version,\n:test_create_dt\n) RETURNING test_id;"
 }
 
 ###
@@ -15,7 +21,7 @@ Content-Type: application/json
 {
     "name": "select",
     "group": "test",
-    "sql": "SELECT * FROM config.steno_test_table WHERE test_name = :test_name"
+    "sql": "SELECT * FROM steno_test_table WHERE test_name = :test_name"
 }
 
 ###

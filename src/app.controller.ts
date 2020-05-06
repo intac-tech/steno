@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Header, Req } from '@nestjs/common';
 import { AppService } from './app.service';
 import { SqlTemplate, StenoTemplate, StenoRequest } from './steno/model';
 import { StenoTemplateProvider } from './steno/steno-template.provider';
 import { StenoProvider } from './steno/steno-service.provider';
+import * as rawbody from 'raw-body';
 
 @Controller('steno')
 export class AppController {
@@ -13,6 +14,17 @@ export class AppController {
   @Get('tables')
   async getTables() {
     return await this.stenoTemplateService.getTables();
+  }
+
+  @Post('executeSql')
+  @Header('content-type', 'text/plain')
+  async executeSql(@Req() req) {
+    if (req.readable) {
+      // body is ignored by NestJS -> get raw body from request
+      const raw = await rawbody(req);
+      const text = raw.toString().trim();
+      return await this.stenoTemplateService.executeSQL(text);
+    }
   }
 
   @Post('console')
