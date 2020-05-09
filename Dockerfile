@@ -1,4 +1,4 @@
-FROM node:11-alpine
+FROM node:12-alpine
 WORKDIR /root/app
 
 # Install app dependencies
@@ -12,5 +12,4 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 8080
 CMD sh server.sh

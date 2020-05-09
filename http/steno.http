@@ -1,10 +1,12 @@
-POST http://localhost:8000/steno/executeSql
+@api_url=http://localhost:8080
+
+POST {{api_url}}/steno/executeSql
 Content-Type: text/plain
 
 < ./test.sql
 ###
 
-POST http://localhost:8000/steno/console
+POST {{api_url}}/steno/console
 Content-Type: application/json
 
 {
@@ -15,7 +17,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8000/steno/console
+POST {{api_url}}/steno/console
 Content-Type: application/json
 
 {
@@ -26,7 +28,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8000/steno/console/test
+POST {{api_url}}/steno/console/test
 Content-Type: application/json
 
 {
@@ -49,7 +51,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:8000/steno/api/test
+POST {{api_url}}/steno/api/test
 Content-Type: application/json
 
 {
@@ -60,7 +62,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8000/steno/api
+POST {{api_url}}/steno/api
 Content-Type: application/json
 
 {
@@ -96,7 +98,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8000/steno/api
+POST {{api_url}}/steno/api
 Content-Type: application/json
 
 {
@@ -121,7 +123,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8000/steno/api
+POST {{api_url}}/steno/api
 Content-Type: application/json
 
 {
@@ -164,7 +166,7 @@ Content-Type: application/json
 
 ###
 
-POST http://localhost:8000/steno/api
+POST {{api_url}}/steno/api
 Content-Type: application/json
 
 {
@@ -204,4 +206,4 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:8000/steno/tables
+GET {{api_url}}/steno/tables
