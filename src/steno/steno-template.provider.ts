@@ -111,4 +111,26 @@ export class StenoTemplateProvider {
             return await conn.query(sql);
         });
     }
+
+    async removeSqlTemplate(group: string, name: string) {
+        return await this.connection.transaction(async (conn) => {
+            await conn.query(pg(`DELETE FROM config.steno_template WHERE st_group = :group AND st_name = :name`)({ group, name }));
+            return { status: 'removed' };
+        });
+    }
+
+    async removeGroup(group: string) {
+        return await this.connection.transaction(async (conn) => {
+            await conn.query(pg(`DELETE FROM config.steno_group WHERE st_group = :group`)({ group }));
+            return { status: 'removed' };
+        });
+    }
+
+
+    async removeStenoTemplate(name: string) {
+        return await this.connection.transaction(async (conn) => {
+            await conn.query(pg(`DELETE FROM config.steno_prepared_template WHERE spt_name = :name`)({name}));
+            return { status: 'removed' };
+        });
+    }
 }

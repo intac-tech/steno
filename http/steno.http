@@ -227,3 +227,14 @@ Content-Type: application/json
 
 ### endpoint to get all tables
 GET http://localhost:8000/steno/tables
+
+
+### endpoint to remove sql template /steno/sql/:group/:sql_name
+DELETE http://localhost:8000/steno/sql/test/insert
+
+### endpoint to remove steno template /steno/templates/:steno_template_name
+DELETE http://localhost:8000/steno/templates/test
+
+
+### endpoint to remove group /steno/group/:group_name
+DELETE http://localhost:8000/steno/sql/groups/test

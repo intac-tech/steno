@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Header, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Header, Req, Delete } from '@nestjs/common';
 import { AppService } from './app.service';
 import { SqlTemplate, StenoTemplate, StenoRequest } from './steno/model';
 import { StenoTemplateProvider } from './steno/steno-template.provider';
@@ -19,6 +19,11 @@ export class AppController {
   @Get('sql/:group')
   async getSqlTemplates(@Param('group') group) {
     return await this.stenoTemplateService.getGroupSqlTemplates([group]);
+  }
+
+  @Delete('sql/:group/:name')
+  async delteSqlTemplate(@Param('group') group: string, @Param('name') name: string) {
+    return await this.stenoTemplateService.removeSqlTemplate(group, name);
   }
 
   @Post('execute')
@@ -66,6 +71,11 @@ export class AppController {
     return await this.stenoTemplateService.createGroup(request.group, request.description);
   }
 
+  @Delete('groups/:group')
+  async removeGroup(@Param('group') group: string) {
+    return await this.stenoTemplateService.removeGroup(group);
+  }
+
   @Get('groups')
   async getGroups() {
     return await this.stenoTemplateService.getGroups();
@@ -74,6 +84,11 @@ export class AppController {
   @Get('templates')
   async getTemplates() {
     return await this.stenoTemplateService.getStenoTemplateNames();
+  }
+
+  @Delete('templates/:name')
+  async removeStenoTemplates(@Param('name') name: string) {
+    return await this.stenoTemplateService.removeStenoTemplate(name);
   }
 
 }
