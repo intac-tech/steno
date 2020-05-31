@@ -3,6 +3,7 @@ import { Connection } from "src/db/connection";
 import { SqlTemplate, StenoTemplate } from "./model";
 import { StenoTemplateService } from "./steno.template";
 import { PoolClient } from "pg";
+import { pg } from 'yesql';
 
 @Injectable()
 export class StenoTemplateProvider {
@@ -26,6 +27,45 @@ export class StenoTemplateProvider {
 
     async saveStenoTemplate(template: StenoTemplate) {
         return await this.processOnTemplate(async (sql) => await sql.saveStenoTemplate(template));
+    }
+
+    async createGroup(group: string, description: string) {
+        return await this.connection.transaction(async (conn) => {
+            await conn.query(pg(`INSERT INTO config.steno_group (st_group, st_description) VALUES (:group, :description)`)({group, description}));
+            return { group, description };
+        });
+    }
+
+    async getStenoTemplateNames() {
+        return await this.connection.transaction( async (conn) => {
+            const result = await conn.query(`SELECT spt_version, p.spt_name FROM config.steno_prepared_template p`);
+            const stenoNames = [];
+            for(const r of result.rows) {
+                stenoNames.push({
+                    name: r.spt_name,
+                    version: r.spt_version
+                });
+            }
+            return stenoNames;
+        });
+    }
+
+    async getGroups() {
+        return await this.connection.transaction(async (conn) => {
+            const result = await conn.query(`SELECT * FROM config.steno_group`);
+            const groups = [];
+            for(const r of result.rows) {
+                groups.push({
+                    group: r.st_group,
+                    descriptin: r.st_description
+                });
+            }
+            return groups;
+        });
+    }
+
+    async getGroupSqlTemplates(groups: string[]) {
+        return await this.processOnTemplate(async (sql) => await sql.getGroupSqlTemplates(groups));
     }
 
     async getTables() {

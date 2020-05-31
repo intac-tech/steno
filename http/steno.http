@@ -1,10 +1,24 @@
-POST http://localhost:8000/steno/executeSql
+### endpoint to execute raw sql
+POST http://localhost:8000/steno/execute
 Content-Type: text/plain
 
 < ./test.sql
-###
 
-POST http://localhost:8000/steno/console
+
+### endpoint to create group
+POST http://localhost:8000/steno/groups
+Content-Type: application/json
+
+{
+    "group": "test",
+    "description": "Test group"
+}
+
+### endpoint to get all groups
+GET http://localhost:8000/steno/groups
+
+### endpoint to create sql template
+POST http://localhost:8000/steno/sql
 Content-Type: application/json
 
 {
@@ -13,9 +27,8 @@ Content-Type: application/json
     "sql":"INSERT INTO steno_test_table (\ntest_name,\ntest_version,\ntest_create_dt\n)\nVALUES\n(\n:test_name,\n:test_version,\n:test_create_dt\n) RETURNING test_id;"
 }
 
-###
-
-POST http://localhost:8000/steno/console
+### endpoint to create sql template
+POST http://localhost:8000/steno/sql
 Content-Type: application/json
 
 {
@@ -24,9 +37,13 @@ Content-Type: application/json
     "sql": "SELECT * FROM steno_test_table WHERE test_name = :test_name"
 }
 
-###
+### endpint to get all sql by group steno/sql/:group_name
+GET http://localhost:8000/steno/sql/test
 
-POST http://localhost:8000/steno/console/test
+
+
+### endpoint to create steno templates steno/templates/:steno_template_name
+POST http://localhost:8000/steno/templates/test
 Content-Type: application/json
 
 {
@@ -48,7 +65,14 @@ Content-Type: application/json
     }
 }
 
-###
+
+
+### endoint to get all steno template names and version
+GET http://localhost:8000/steno/templates
+
+
+
+### endpoint to execute steno template steno/api/:steno_template_name
 POST http://localhost:8000/steno/api/test
 Content-Type: application/json
 
@@ -58,8 +82,9 @@ Content-Type: application/json
     "createDate": "2020-01-01 01:01:01"
 }
 
-###
 
+
+### endpont to execute sql template example 1
 POST http://localhost:8000/steno/api
 Content-Type: application/json
 
@@ -94,8 +119,7 @@ Content-Type: application/json
     }
 }
 
-###
-
+### endpont to execute sql template example 2
 POST http://localhost:8000/steno/api
 Content-Type: application/json
 
@@ -119,8 +143,7 @@ Content-Type: application/json
     }
 }
 
-###
-
+### endpont to execute sql template example 3
 POST http://localhost:8000/steno/api
 Content-Type: application/json
 
@@ -162,8 +185,7 @@ Content-Type: application/json
 }
 
 
-###
-
+### endpont to execute sql template example 4
 POST http://localhost:8000/steno/api
 Content-Type: application/json
 
@@ -203,5 +225,5 @@ Content-Type: application/json
     }
 }
 
-###
+### endpoint to get all tables
 GET http://localhost:8000/steno/tables

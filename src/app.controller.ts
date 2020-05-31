@@ -16,7 +16,12 @@ export class AppController {
     return await this.stenoTemplateService.getTables();
   }
 
-  @Post('executeSql')
+  @Get('sql/:group')
+  async getSqlTemplates(@Param('group') group) {
+    return await this.stenoTemplateService.getGroupSqlTemplates([group]);
+  }
+
+  @Post('execute')
   @Header('content-type', 'text/plain')
   async executeSql(@Req() req) {
     if (req.readable) {
@@ -27,12 +32,12 @@ export class AppController {
     }
   }
 
-  @Post('console')
+  @Post('sql')
   async saveTemplate(@Body() request: SqlTemplate) {
     return await this.stenoTemplateService.saveTemplate(request);
   }
 
-  @Post('console/:name')
+  @Post('templates/:name')
   async savePsTemplate(@Body() request: StenoRequest, @Param('name') name) {
     const template: StenoTemplate = {
       name,
@@ -42,6 +47,8 @@ export class AppController {
     return await this.stenoTemplateService.saveStenoTemplate(template);
   }
 
+  // api methods
+
   @Post('api')
   async execute(@Body() request: StenoRequest) {
     return await this.stenoSvc.execute(request);
@@ -50,6 +57,23 @@ export class AppController {
   @Post('api/:name')
   async executePs(@Body() variables: any, @Param('name') name) {
     return await this.stenoSvc.executePs(name, variables);
+  }
+
+  // groups methods
+
+  @Post('groups')
+  async createGroup(@Body() request: { group:string, description: string }) {
+    return await this.stenoTemplateService.createGroup(request.group, request.description);
+  }
+
+  @Get('groups')
+  async getGroups() {
+    return await this.stenoTemplateService.getGroups();
+  }
+
+  @Get('templates')
+  async getTemplates() {
+    return await this.stenoTemplateService.getStenoTemplateNames();
   }
 
 }

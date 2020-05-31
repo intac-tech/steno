@@ -19,6 +19,27 @@ export class StenoTemplateService {
         }));
     }
 
+    private async toSqlTemplate(sql) {
+        const result = await this.connection.query(sql)
+        return result.rows.map(o => ({
+            name: o.st_name,
+            group: o.st_group,
+            sql: o.st_sql.toString('utf8'),
+            version: o.st_version
+        }));
+    }
+
+    async getGroupSqlTemplates(groups: string[]) {
+        const sql = pg(`
+            SELECT o.* FROM (
+                SELECT s.*, (s.st_group || ':' || s.st_name) as group_name 
+                FROM config.steno_template s 
+            ) o
+            WHERE o.st_group = ANY (:groups)
+        `)({groups});
+        return this.toSqlTemplate(sql);
+    }
+
     async getSqlTemplates(names: string[]) {
         const sql = pg(`
             SELECT o.* FROM (
@@ -27,13 +48,7 @@ export class StenoTemplateService {
             ) o
             WHERE o.group_name = ANY (:names)
         `)({names});
-        const result = await this.connection.query(sql)
-        return result.rows.map(o => ({
-            name: o.st_name,
-            group: o.st_group,
-            sql: o.st_sql.toString('utf8'),
-            version: o.st_version
-        }));
+        return this.toSqlTemplate(sql);
     }
 
     async saveSqlTemplate(template: SqlTemplate) {

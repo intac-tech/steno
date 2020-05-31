@@ -1,21 +1,23 @@
 import { Injectable } from "@nestjs/common";
 import { Pool } from "pg";
 
-const pool = new Pool({
-    host: process.env.DB_HOST,
-    port: parseInt(process.env.DB_PORT),
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
-  })
-
 @Injectable()
 export class Connection {
+    private pool: Pool;
+    constructor() {
+        this.pool = new Pool({
+            host: process.env.DB_HOST,
+            port: parseInt(process.env.DB_PORT),
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            max: 20,
+            idleTimeoutMillis: 30000,
+            connectionTimeoutMillis: 2000,
+        })
+    }
 
     async connection() {
-        return await pool.connect();
+        return await this.pool.connect();
     }
 
     async transaction<T>(handler: (connection) => Promise<T>) {

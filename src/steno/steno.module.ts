@@ -17,7 +17,16 @@ export class StenoModule {
     async init() {
         console.log('initialize steno db');
         await this.connection.transaction(async (conn) => {
+            // todo: this should be transfered to migrations folder
             await conn.query(`CREATE SCHEMA IF NOT EXISTS config;`);
+            
+            await conn.query(`
+            CREATE TABLE IF NOT EXISTS config.steno_group (
+                st_group varchar(500) NOT NULL,
+                st_description varchar(1000) NOT NULL,
+                PRIMARY KEY (st_group)
+            );`);
+
             await conn.query(`
             CREATE TABLE IF NOT EXISTS config.steno_template (
                 st_group varchar(500) NOT NULL,
